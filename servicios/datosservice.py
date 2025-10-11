@@ -74,7 +74,7 @@ class DatosService:
         else:
             l_datastruct = []
             
-        self.logger.info(f"Procesando: {len(l_datastruct)} frames.")
+        #self.logger.info(f"Procesando: {len(l_datastruct)} frames.")
         #self.logger.debug(f"l_datastruct = {l_datastruct}")
         return l_datastruct
     
@@ -136,9 +136,14 @@ class DatosService:
         """
         self.logger.debug("")
 
-        self.logger.info(f"Procesando: {len(l_datos_formateados)} rcds.")
+        #self.logger.info(f"Procesando: {len(l_datos_formateados)} rcds.")
         return self.repo.insertar_datos_bulk(l_datos_formateados)
 
+    def do_housekeeping(self):
+        """
+        """
+        self.logger.debug("")
 
-
+        return self.repo.do_housekeeping()
+    
     

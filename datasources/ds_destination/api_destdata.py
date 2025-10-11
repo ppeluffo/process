@@ -31,3 +31,19 @@ class ApiDestinationData:
 
         #self.logger.debug(f"D_RSP={d_rsp}")
         return d_rsp
+    
+    def do_housekeeping(self):
+        """
+        Le enviamos a apidatos
+        """
+        self.logger.debug("")
+
+        try:
+            r = requests.get(f"{self.BASE_URL}/housekeeping", jtimeout=10 )
+            d_rsp = {'status_code': r.status_code }
+
+        except Exception as e: 
+            self.logger.error( f"Error-> {e}")
+            d_rsp = {'status_code': 502,  'msg':f"{e}" }
+
+        return d_rsp

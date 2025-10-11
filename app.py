@@ -31,7 +31,7 @@ def main_task():
     #now = start.strftime("%Y-%m-%d %H:%M:%S")
     #print(f"INFO,{__name__}:Running...{now}")
     start = time.time()
-    print(f"INFO,{__name__}:Running...")
+    #print(f"INFO,{__name__}:Running...")
 
     # Desencolo datos de la Redis.
     # Cada elemento es del tipo: {'TYPE':args['type'], 'ID':args['unit'], 'D_LINE':d_params}.
@@ -46,13 +46,14 @@ def main_task():
 
         # Envio los datos para que se inserten bulk
         container.datos_service().insertar_datos_bulk(l_datos_formateados)
-        #
+        
+        # Mantenemos la tabla online acotada
+        container.datos_service().do_housekeeping()
 
-    #end = datetime.now()
-    #elapsed_time = (end - start).seconds
+
     end = time.time()
     elapsed_time = (end - start) * 1000
-    print(f"INFO,{__name__}: Elapsed={elapsed_time:.2f} msecs.")
+    print(f"INFO,{__name__}:Procesando {len(l_datastruct)} frames, {len(l_datos_formateados)} rcds. en {elapsed_time:.2f} msecs.")
 
 if __name__ == '__main__':
 

@@ -50,10 +50,13 @@ def insert_frame( frame ):
     device_type = frame.get('TYPE','SPX')
     payload = { 'dataline': frame.get('D_LINE',{}) }
 
-    r = requests.put( URL_REDIS + 'dataline', params={'unit':unit_id,'type':device_type}, json=payload, timeout=10 )
-    if r.status_code != 200:
-        print(f"INSERT ERROR {r.status_code}")
-    
+    try:
+        r = requests.put( URL_REDIS + 'dataline', params={'unit':unit_id,'type':device_type}, json=payload, timeout=10 )
+        if r.status_code != 200:
+            print(f"INSERT ERROR {r.status_code}")
+    except Exception as e:
+        print(f"Exception {e}")
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser("Generador de frames de dataloggers")

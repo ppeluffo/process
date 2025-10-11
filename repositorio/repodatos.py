@@ -22,6 +22,11 @@ class RepoDatos:
 
         return self.ds_dest.insertar_datos_bulk(l_datos_formateados)
 
+    def do_housekeeping(self):
+        """
+        """
+        self.logger.debug("")
 
+        return self.ds_dest.do_housekeeping()
     
 
