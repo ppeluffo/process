@@ -6,7 +6,7 @@ from config import settings
 import requests
 import json
 
-class ApiDestinationData:
+class ApiBdPgsql:
 
     def __init__(self, logger):
         self.logger = logger
@@ -18,9 +18,8 @@ class ApiDestinationData:
         """
         self.logger.debug("")
 
-        payload = {"d_datos_bulk":l_datos_formateados}
+        payload = l_datos_formateados
         #self.logger.debug(f"payload={payload}")
-
         try:
             r = requests.post(f"{self.BASE_URL}/insertdatosbulk", json=payload, timeout=10 )
             d_rsp = {'status_code': r.status_code }
@@ -39,7 +38,7 @@ class ApiDestinationData:
         self.logger.debug("")
 
         try:
-            r = requests.get(f"{self.BASE_URL}/housekeeping", jtimeout=10 )
+            r = requests.get(f"{self.BASE_URL}/housekeeping", timeout=10 )
             d_rsp = {'status_code': r.status_code }
 
         except Exception as e: 

@@ -13,10 +13,10 @@ API_PGSQL_PORT = os.environ.get('API_PGSQL_PORT','5300')
 API_PGSQL_URLBASE = f"http://{API_PGSQL_HOST}:{API_PGSQL_PORT}/apidatos"
 
 # DEBUG->INFO->ERROR
-LOG_LEVEL = "INFO"
+LOG_LEVEL = os.environ.get('LOG_LEVEL','INFO')
 
 # Maxima cantidad de frames a desencolar para procesar.
-MAX_DEQUEUE_FRAMES = int(os.environ.get('MAX_DEQUEUE_FRAMES',1000))
+MAX_DEQUEUE_FRAMES = int(os.environ.get('MAX_DEQUEUE_FRAMES',3))
 
-SLEEP_TIME = 10
+SLEEP_TIME = int(os.environ.get('SLEEP_TIME',5))
 

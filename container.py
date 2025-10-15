@@ -5,8 +5,8 @@ from dependency_injector import containers, providers
 from servicios.datosservice import DatosService
 from repositorio.repodatos import RepoDatos
 
-from datasources.ds_destination.api_destdata import ApiDestinationData
-from datasources.ds_source.api_sourcedata import ApiSourceData
+from datasources.ds_pgsql.apibdpgsql import ApiBdPgsql
+from datasources.ds_redis.apibdredis import ApiBdRedis
 
 from utilidades.login_config import configure_logger
 
@@ -15,8 +15,8 @@ class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=["servicios.datosservice", 
                  "repositorio.repodatos",
-                 "datasources.ds_destination.api_destdata",
-                 "datasources.ds_source.api_sourcedata" 
+                 "datasources.ds_pgsql.apibdpgsql",
+                 "datasources.ds_redis.apibdredis" 
                  ]
     )
     
@@ -24,11 +24,11 @@ class Container(containers.DeclarativeContainer):
     logger = providers.Singleton(configure_logger, name="app-process")
 
     # Datasources
-    ds_sourcedata = providers.Factory(ApiSourceData, logger=logger)
-    ds_destdata = providers.Factory(ApiDestinationData, logger=logger )
+    ds_bdredis = providers.Factory(ApiBdRedis, logger=logger)
+    ds_bdpgsql = providers.Factory(ApiBdPgsql, logger=logger )
     
     # Repositorios
-    repo = providers.Factory(RepoDatos,ds_sourcedata=ds_sourcedata, ds_destdata=ds_destdata, logger=logger)
+    repo = providers.Factory(RepoDatos,ds_bdredis=ds_bdredis, ds_bdpgsql=ds_bdpgsql, logger=logger)
     
     # Servicios
     datos_service =  providers.Factory(DatosService, repositorio=repo, logger=logger)

@@ -7,7 +7,7 @@ from config import settings
 import requests
 
 
-class ApiSourceData:
+class ApiBdRedis:
 
     def __init__(self, logger):
         self.logger = logger
@@ -31,8 +31,7 @@ class ApiSourceData:
         if r.status_code == 200:
             # Cada elemento es del tipo: {'TYPE':args['type'], 'ID':args['unit'], 'D_LINE':d_params}.
             payload = r.json()
-            l_datastruct = payload.get('l_datastruct',[])
-            d_rsp = {'status_code': 200,  'l_datastruct':l_datastruct }
+            d_rsp = {'status_code': 200,  'l_datastruct': payload }
 
         #self.logger.debug(f"DEBUG: D_RSP={d_rsp}")
         #self.logger.debug(f"DEBUG: {type(d_rsp)}")
