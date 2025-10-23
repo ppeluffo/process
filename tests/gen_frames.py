@@ -11,9 +11,10 @@ import requests
 import time
 import argparse
 
+from datalines import DatalineService
+
 FRAMES_X_MINUTO = 200
 
-URL_REDIS = "http://localhost:5100/apiredis/"
 
 l_equipos = [ "UYTAC014","CCPRES004","KYTQTEST","UYPAY026","UYCDP033","UYCOL524","RIVTQ005","PSTCAU02","DNOTQ004"]
 l_tags = ["PA","PB","Q0","Q1","bt12v","H1","NT"]
@@ -46,16 +47,12 @@ def insert_frame( frame ):
 
     print(frame)
     
-    unit_id = frame.get('ID','DEFAULT')
-    device_type = frame.get('TYPE','SPX')
+    unit = frame.get('ID','DEFAULT')
+    unit_type = frame.get('TYPE','SPX')
     payload = { 'dataline': frame.get('D_LINE',{}) }
 
-    try:
-        r = requests.put( URL_REDIS + 'dataline', params={'unit':unit_id,'type':device_type}, json=payload, timeout=10 )
-        if r.status_code != 200:
-            print(f"INSERT ERROR {r.status_code}")
-    except Exception as e:
-        print(f"Exception {e}")
+    datalinesService.process_dataline(unit=unit, unit_type=unit_type, d_dataline=payload)
+
 
 if __name__ == '__main__':
 
@@ -67,6 +64,8 @@ if __name__ == '__main__':
     frames_x_minuto = args.framesxmin
     frames_x_segundo = frames_x_minuto / 60
     intervalo = 1 / frames_x_segundo
+
+    datalinesService = DatalineService()
 
     print(f"Generando {frames_x_minuto} frames x minuto.")
     print(f"Intervalo interframes: {intervalo:.2f} secs.")

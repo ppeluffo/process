@@ -4,13 +4,16 @@ import os
 
 API_VERSION = os.environ.get('API_VERSION','R002 @ 2025-09-30')
 #
-API_REDIS_HOST = os.environ.get('API_REDIS_HOST','127.0.0.1')
-API_REDIS_PORT = os.environ.get('API_REDIS_PORT','5100')
-API_REDIS_URLBASE = f"http://{API_REDIS_HOST}:{API_REDIS_PORT}/apiredis"
+PGSQL_HOST = os.environ.get('PGSQL_HOST', '127.0.0.1')
+PGSQL_PORT = os.environ.get('PGSQL_PORT','5435')
+PGSQL_USER = os.environ.get('PGSQL_USER', 'admin')
+PGSQL_PASSWD = os.environ.get('PGSQL_PASSWD', 'pexco599')
+PGSQL_BD = os.environ.get('PGSQL_BD','bd_spcomms')
+PGSQL_URL = f"postgresql+psycopg2://{PGSQL_USER}:{PGSQL_PASSWD}@{PGSQL_HOST}:{PGSQL_PORT}/{PGSQL_BD}"
 
-API_PGSQL_HOST = os.environ.get('API_PGSQL_HOST','127.0.0.1')
-API_PGSQL_PORT = os.environ.get('API_PGSQL_PORT','5300')
-API_PGSQL_URLBASE = f"http://{API_PGSQL_HOST}:{API_PGSQL_PORT}/apidatos"
+BDREDIS_HOST = os.environ.get('BDREDIS_HOST','127.0.0.1')
+BDREDIS_PORT = os.environ.get('BDREDIS_PORT','6379')
+BDREDIS_DB = os.environ.get('BDREDIS_DB','0')
 
 # DEBUG->INFO->ERROR
 LOG_LEVEL = os.environ.get('LOG_LEVEL','INFO')
@@ -18,5 +21,6 @@ LOG_LEVEL = os.environ.get('LOG_LEVEL','INFO')
 # Maxima cantidad de frames a desencolar para procesar.
 MAX_DEQUEUE_FRAMES = int(os.environ.get('MAX_DEQUEUE_FRAMES',3))
 
-SLEEP_TIME = int(os.environ.get('SLEEP_TIME',5))
+SLEEP_TIME = int(os.environ.get('SLEEP_TIME',15))
 
+MAX_HOURS_BACK_HOUSEKEEPING = os.environ.get('MAX_HOURS_BACK_HOUSEKEEPING', 48)

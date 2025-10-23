@@ -3,37 +3,32 @@
 
 """
 
+import redis
 from config import settings
-import requests
-
 
 class ApiBdRedis:
 
     def __init__(self, logger):
         self.logger = logger
-        self.BASE_URL = settings.API_REDIS_URLBASE
+        self.rh = redis.Redis( settings.BDREDIS_HOST, settings.BDREDIS_PORT,settings.BDREDIS_DB, socket_connect_timeout=1)
 
-    def leer_datos_encolados(self):
+    def pop_rxlines(self):
         """
-        Le pedimos a la apiredis los datos que hay encolados en RXDATA_QUEUE
+        Si la lista no existe, redis devuelve un None.
+        Si la lista existe y está vacia, devuelve None.
         """
-        self.logger.debug("")
-        
+
         try:
-            params = {'count': settings.MAX_DEQUEUE_FRAMES }
-            r = requests.get(f"{self.BASE_URL}/dequeuerxlines", params=params, timeout=10 )
-            d_rsp = {'status_code': r.status_code }
+            l_pk_datastruct = self.rh.lpop('RXDATA_QUEUE', settings.MAX_DEQUEUE_FRAMES)
+            #self.logger.debug(f"l_pk_datastruct={l_pk_datastruct}")
+            if l_pk_datastruct is None:
+                d_rsp = {'status_code': 404 }
+            else:
+                d_rsp = { 'status_code': 200, 'l_pk_datastruct': l_pk_datastruct }
 
-        except Exception as e: 
-            self.logger.error( f"Error-> {e}")
+        except Exception as e:
+            #self.logger.debug( f"Redis Error {e}")
             d_rsp = {'status_code': 502,  'msg':f"{e}" }
-        
-        if r.status_code == 200:
-            # Cada elemento es del tipo: {'TYPE':args['type'], 'ID':args['unit'], 'D_LINE':d_params}.
-            payload = r.json()
-            d_rsp = {'status_code': 200,  'l_datastruct': payload }
-
-        #self.logger.debug(f"DEBUG: D_RSP={d_rsp}")
-        #self.logger.debug(f"DEBUG: {type(d_rsp)}")
+        #
+        #self.logger.debug(f"d_rsp={d_rsp}")
         return d_rsp
-    

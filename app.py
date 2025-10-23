@@ -28,32 +28,46 @@ def main_task():
     Luego borra todos los registros con mas de 72 hs
     """
 
-    start = time.time()
+    t1_start = time.time()
  
     # Desencolo datos de la Redis.
     # Cada elemento es del tipo: {'TYPE':args['type'], 'ID':args['unit'], 'D_LINE':d_params}.
     # Tengo una lista de diccionarios
-    l_datastruct = container.datos_service().leer_datos_encolados()
-    
+    t2_start = time.time()
+    l_datastruct = container.datos_service().pop_rxlines()
+    t2_end = time.time()
+    elapsed_t2 = (t2_end - t2_start) * 1000
+    #logger.info(f"dtime: pop_rxlines={elapsed_t2}")
+
     if len(l_datastruct) > 0:
 
         # Formateamos los datos para que puedan insertarse en modo bulk
+        t3_start = time.time()
         l_datos_formateados = container.datos_service().formatear_lista_datos(l_datastruct)
-        #print(f"l_datos_formateados={l_datos_formateados}")
+        logger.debug(f"l_datos_formateados={l_datos_formateados}")
+        t3_end = time.time()
+        elapsed_t3 = (t3_end - t3_start) * 1000
+        #logger.info(f"dtime: formatear_lista_datos={elapsed_t3}")
     
         # Envio los datos para que se inserten bulk
+        t4_start = time.time()
         container.datos_service().insertar_datos_bulk(l_datos_formateados)
-        
+        t4_end = time.time()
+        elapsed_t4 = (t4_end - t4_start) * 1000
+        #logger.info(f"dtime: insertar_datos_bulk={elapsed_t4}")
+
         # Mantenemos la tabla online acotada
         #container.datos_service().do_housekeeping()
 
     else:
         l_datos_formateados = []
+        elapsed_t3 = 0
+        elapsed_t4 = 0
         
-    end = time.time()
-    elapsed_time = (end - start) * 1000
-    logger.info(f"Procesando {len(l_datastruct)} frames, {len(l_datos_formateados)} rcds. en {elapsed_time:.2f} msecs.")
-    #print(f"INFO,{__name__}:Procesando {len(l_datastruct)} frames, {len(l_datos_formateados)} rcds. en {elapsed_time:.2f} msecs.")
+    t1_end = time.time()
+    elapsed_t1 = (t1_end - t1_start) * 1000
+    logger.info(f"Procesando: {len(l_datastruct)} frames, {len(l_datos_formateados)} rcds. en {elapsed_t1:.2f} msecs.")
+    logger.info(f"            T_redis={elapsed_t2:.2f} ms, T_process={elapsed_t3:.2f} ms, T_pgsql={elapsed_t4:.2f} ms.")
 
 
 if __name__ == '__main__':

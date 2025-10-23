@@ -2,47 +2,72 @@
 """
 
 """
+from .models import Usuarios, Configuraciones, Online, RecoverId, Historica
+from sqlalchemy import text
+from sqlalchemy import cast
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import insert
+
+from datetime import datetime, timedelta
+
 from config import settings
-import requests
-import json
 
 class ApiBdPgsql:
 
-    def __init__(self, logger):
+    def __init__(self, session_factory, logger):
+        self.session_factory = session_factory
         self.logger = logger
-        self.BASE_URL = settings.API_PGSQL_URLBASE
-
-    def insertar_datos_bulk(self, l_datos_formateados):
+  
+    def insertar_datos_bulk_historica(self, l_datos_bulk=None):
         """
-        Le enviamos a apidatos
+        l_datos_bulk es una lista de tuplas (sfechadata, sfechasys, id, key, value)
         """
         self.logger.debug("")
 
-        payload = l_datos_formateados
-        #self.logger.debug(f"payload={payload}")
         try:
-            r = requests.post(f"{self.BASE_URL}/insertdatosbulk", json=payload, timeout=10 )
-            d_rsp = {'status_code': r.status_code }
+            with self.session_factory() as session:
+                session.bulk_insert_mappings(Historica, l_datos_bulk)
+                session.commit()
+                d_rsp = { 'status_code': 200}        
 
-        except Exception as e: 
-            self.logger.error( f"Error-> {e}")
+        except Exception as e:
+            self.logger.error(f"{e}")
             d_rsp = {'status_code': 502,  'msg':f"{e}" }
 
-        #self.logger.debug(f"D_RSP={d_rsp}")
-        return d_rsp
+        return d_rsp 
     
-    def do_housekeeping(self):
+    def insertar_datos_bulk_online(self, l_datos_bulk=None):
         """
-        Le enviamos a apidatos
+        l_datos_bulk es una lista de tuplas (sfechadata, sfechasys, id, key, value)
         """
         self.logger.debug("")
 
         try:
-            r = requests.get(f"{self.BASE_URL}/housekeeping", timeout=10 )
-            d_rsp = {'status_code': r.status_code }
+            with self.session_factory() as session:
+                session.bulk_insert_mappings(Online, l_datos_bulk)
+                session.commit()
+                d_rsp = { 'status_code': 200}        
 
-        except Exception as e: 
-            self.logger.error( f"Error-> {e}")
+        except Exception as e:
+            self.logger.error(f"{e}")
+            d_rsp = {'status_code': 502,  'msg':f"{e}" }
+
+        return d_rsp   
+    
+    def achicar_tb_online(self, min_ptr=None):
+        """
+        Acorta la tabla online para que queden registros a partir de min_ptr
+        """
+        self.logger.debug("")
+
+        try:
+            with self.session_factory() as session:
+                session.query(Online).filter(Online.id < min_ptr).delete(synchronize_session=False)
+                session.commit()
+                d_rsp = {'status_code': 200}        
+
+        except Exception as e:
+            self.logger.error(f"{e}")
             d_rsp = {'status_code': 502,  'msg':f"{e}" }
 
         return d_rsp
